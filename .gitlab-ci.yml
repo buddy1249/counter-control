@@ -17,7 +17,7 @@ deploy_job:
     entrypoint: [""] # сбросить стандартную настройку образа, оставить просто bash 
        
   script:
-    - export KUBECONFIG=$KUBECONFIG_CONTENT #  , где kubectl взять ключи и адреса для подключения к кластеру. GitLab (File type).
+    - export KUBECONFIG=$KUBECONFIG_CONTENT # где kubectl взять ключи и адреса для подключения к кластеру. GitLab (File type).
     - sed -i "s|127.0.0.1|$NODE_IP|g" $KUBECONFIG # переменная ip
     - sed -i "s|__IMAGE_NAME__|$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA|g" k8s-deploy.yaml    
     
