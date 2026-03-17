@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* Убираем лишние отступы */
+        body, html { margin: 0; height: 100%; font-family: sans-serif; }
+
+        /* Главный контейнер на весь экран */
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 1. Верхнее меню */
+        .header {
+            height: 60px;
+            background-color: #e4ba5f;
+            color: rgb(143, 111, 53);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+                        
+        }
+        .menu {
+            padding: 0 25px; /* 0 сверху/снизу, 15px слева и справа */
+        }
+    
+
+        /* Контейнер для нижних блоков */
+        .main-content {
+            display: flex;
+            flex: 1; /* Занимает всё оставшееся место */
+        }
+
+        /* 2. Левая колонка */
+        .sidebar {
+            width: 250px;
+            background-color: #f4f4f4;
+            border-right: 1px solid #ddd;
+            padding: 15px;
+        }
+
+        /* 3. Правая часть (основная) */
+        .content {
+            flex: 1;
+            padding: 15px;
+        }
+
+        .table {
+	width: 100%;
+	box-shadow: 0 5px rgba(152, 47, 17, 0.2);
+	margin-bottom: 20px;
+	border: 1px solid #dddddd;
+	border-collapse: collapse;
+    }
+    .table th {
+	font-weight: bold;
+	padding: 5px;
+	background-color: #1e88e5;
+	color: #fff;
+	border: 1px solid #dddddd;
+}
+.table td {
+	border: 1px solid #dddddd;
+	padding: 5px;	
+        vertical-align: center;
+        text-align: center;
+        width: 100px;       /* Жесткая ширина конкретного столбца */
+        overflow: hidden;   /* Что делать с лишним текстом */
+        word-wrap: break-word; /* Переносить длинные слова */
+}
+.table tr:nth-child(even) {
+	background: #f5f5f5 ;
+}
+
+.chart-bar {       
+        width: var(--w, 0%);         
+}
+.container {
+  display: flex;
+  justify-content: center; /* Выравнивание по горизонтали */
+  align-items: center;     /* Выравнивание по вертикали */
+  min-height: 200px;       /* Высота блока для примера */
+  text-align: center;      /* Центровка текста внутри строк */
+}
+
+.fancy-text {
+  font-family: 'Inter', sans-serif; /* Или любой другой современный шрифт */
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em; /* Чуть плотнее для стиля */
+  
+  /* Эффект градиента */
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+  /* Легкое свечение для объема */
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Горизонтальная часть -->
+        <div class="header">
+            <strong  class="menu"> <a href="/">Главная</a></strong>   
+            
+        </div>       
+
+        <div class="main-content">
+            <!-- Левая часть -->
+            <div class="sidebar">
+                <nav>
+                    <h2 class="fancy-text">Ваш девайс</h2>            
+                     <img src="/static/counter.png" style="width: 260px; height: auto;">  
+                    <table class="table">
+            <thead>
+                <tr>                   
+                    
+                    <th>Параметр </th>
+                    <th>Значение</th>                
+                    
+                </tr>
+            </thead>
+            <tbody style="color: #1711c0; text-align: center; font-weight: 700;">
+                <tr >                  
+                    <td>Модель счетчика</td>
+                    <td>{{ name_counter }}</td>                    
+                </tr>
+                <tr >                  
+                    <td>Dy (мм)</td>
+                    <td>{{ Dy }}</td>                    
+                </tr>
+                <tr>                  
+                    <td>Абсолютное давление(МПа)</td>
+                    <td>{{ actual_pressure }}</td>                     
+                </tr> 
+                <tr>                  
+                    <td>Расход (м3/ч)</td>
+                    <td>{{ consumption_hour }}</td>                     
+                </tr> 
+                <tr>                  
+                    <td>Перепад давления (Па)</td>
+                    <td>{{ pressure_drop }}</td>                   
+                </tr>
+                <tr>                  
+                    <td>Плотность газа (кг/м3) </td>
+                    <td>{{ gas_density }}</td>                      
+                </tr>
+                           
+                
+            </tbody>
+          </table>  
+                   
+                </nav>
+                
+            </div>
+
+            <!-- Правая часть -->
+            <div class="content">
+                                    
+                     <table class="table">
+            <thead>
+                <tr>                   
+                    
+                    <th>Текущее значение перепада входит в диапазон: </th>
+                    <th>Техническое состояние счетчика</th>                
+                    
+                </tr>
+            </thead>
+            <tbody style="color: #1711c0; text-align: center; font-weight: 700;">
+                <tr >                  
+                    <td>{{ differential_value[0] }}</td>
+                    <td>{{ differential_value[1] }}</td>                    
+                </tr>                                         
+                
+            </tbody>
+          </table>  
+
+          {% if error_msg %}
+    <div style="color: red; border: 1px solid red; padding: 10px;">
+        <strong>Ошибка:</strong> {{ error_msg }}
+        <ul>
+        {% for error in errors %}
+            <li>Поле <b>{{ error.loc[-1] }}</b>: {{ error.msg }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endif %}  
+
+
+  <br>
+  <br> 
+  <br>
+  <div style="display: grid; grid-template-columns: 80px 1fr 40px; gap: 10px; align-items: center; font-family: sans-serif;">
+  <!-- Диаграмма 1 -->
+  <div>Факт</div>
+  <div style="background: #eee; height: 50px; border-radius: 10px;">
+    <div class="chart-bar"  style="--w: {{ fg_actual }}%; background: #2ecc71; height: 100%; border-radius: 10px;"></div>
+  
+    </div>
+  <div style="font-weight: bold;">{{ pressure_drop }}</div>
+
+  <!-- Диаграмма 2 -->
+  <div>Расчет</div>
+  <div style="background: #eee; height: 50px; border-radius: 10px;">
+    <div class="chart-bar"  style="--w: {{ fg }}%; background: #e74c3c; height: 100%; border-radius: 10px;"></div>
+   
+  </div>
+  <div style="font-weight: bold;">{{ DP }}</div>
+</div>
+  
+<br>
+<br>
+<br>
+
+<div class="container">
+    <p class="fancy-text">Техническое состояние счетчиков ['g16', 'g25', 'g40', 'g65', 'g160'] в том числе 
+составе комплекса СГ-ЭК (корректор ЕК270 с преобразователем перепада давления (ППД)) при
+рабочих условиях определяется путем сравнения текущего (измеренного) значения
+перепада давления с расчетным значением в соответствии с ГОСТ Р 8.740.</p>
+</div>
+
+
+
+
+    </div>
+    
+  </div>
+  
+</div>
+
+</div>
+         
+</div>
+
+</body>
+</html>

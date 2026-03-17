@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Form | Расчет счетчиков</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-sizing: border-box; /* Важно для верстки */
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 14px 20px;
+            margin-top: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #4338ca;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Ротационные счетчики</h2>
+    <form action="{{ url_for('handle_form') }}" method="post">
+        <div class="form-group">
+            <input type="text" name="name_counter" placeholder="Модель счетчика: [g16, g25, g40, g65, g160]" required>
+            <input type="number" step="any" name="Dy" placeholder="Диаметр Dy в мм.: [< 300]" required>
+            <input type="number" step="any" name="actual_pressure" placeholder="Абсолютное давление МПа" required>
+            <input type="number" step="any" name="consumption_hour" placeholder="Рабочий расход м3/час: [< Qmax для счетчика]" required>
+            <input type="number" step="any" name="pressure_drop" placeholder="Перепад давления Па: [Измеренное значение]" required>
+            <input type="number" step="any" name="gas_density" placeholder="Плотность газа кг/м3: [0.66 ... 0.97]"  required>
+        </div>
+        <button type="submit">Выполнить расчет</button>
+    </form>
+</div>
+
+</body>
+</html>
