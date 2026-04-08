@@ -53,7 +53,7 @@ graph LR
     style User fill:#f9f,stroke:#333,stroke-width:2px
     style Traefik fill:#00adef,stroke:#fff,color:#fff
     style App fill:#05998b,stroke:#fff,color:#fff
-
+```
 
 ### Основные команды управления:
 ```bash
