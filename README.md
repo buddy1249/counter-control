@@ -33,6 +33,28 @@
 1. Real IP Propagation: Настроена передача реального IP-адреса клиента в приложение.
 2. Traefik в режиме DaemonSet (для высокой доступности на всех нодах.
 
+### 🗺 Схема прохождения трафика (Traffic Flow)
+
+```mermaid
+graph LR
+    User([Клиент: 1.2.3.4]) -- "HTTPS (443)" --> VPS["VPS (K3s Node)"]
+    
+    subgraph Cluster [K3s Cluster]
+        Traefik["Traefik (DaemonSet) <br/> externalTrafficPolicy: Local"]
+        App["FastAPI Pod <br/> --proxy-headers"]
+        Svc["Service <br/> (ClusterIP)"]
+    end
+
+    VPS --> Traefik
+    Traefik -- "X-Forwarded-For: 1.2.3.4 <br/> X-Forwarded-Proto: https" --> Svc
+    Svc --> App
+    App -- "Логирование реального IP" --> Log[(Log: 1.2.3.4)]
+    
+    style User fill:#f9f,stroke:#333,stroke-width:2px
+    style Traefik fill:#00adef,stroke:#fff,color:#fff
+    style App fill:#05998b,stroke:#fff,color:#fff
+
+
 ### Основные команды управления:
 ```bash
 # Проверка статуса деплоя
