@@ -14,15 +14,19 @@ deploy_job:
   stage: deploy
   image:
     name: bitnami/kubectl:latest
-    entrypoint: [""]
-       
-  script:
+    entrypoint: [""]       
+  
+script:
     - export KUBECONFIG=$KUBECONFIG_CONTENT
     - sed -i "s|127.0.0.1|ip-service|g" $KUBECONFIG
     - sed -i "s|__IMAGE_NAME__|$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA|g" k8s-deploy.yaml
     
-    # Применяем и деплоймент, и ингресс
+    # Готовим инфраструктуру к приему заголовков.
+    - kubectl apply -f k3s-traefik-update.yaml --insecure-skip-tls-verify
+    
+    # Деплоим само приложение и правила Ingress
     - kubectl apply -f k8s-deploy.yaml --insecure-skip-tls-verify
     - kubectl apply -f ingress.yaml --insecure-skip-tls-verify
     
+    # Ждем, пока приложение обновится
     - kubectl rollout status deployment/fastapi-app
