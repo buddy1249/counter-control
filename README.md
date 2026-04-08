@@ -54,6 +54,7 @@ graph LR
     style Traefik fill:#00adef,stroke:#fff,color:#fff
     style App fill:#05998b,stroke:#fff,color:#fff
 ```
+🛠 Grafana
 
 <p align="center">
   <img src="img/k3s-cluster-monitoring.png" alt="Cluster Monitoring" width="800">
