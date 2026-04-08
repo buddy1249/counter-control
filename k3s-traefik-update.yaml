@@ -1,0 +1,20 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  # правим встроенный чарт
+  name: traefik
+  # Системный неймспейс ingress-контроллер в K3s
+  namespace: kube-system
+spec:
+  # переопределяем стандартные настройки Helm-чарта Traefik
+  valuesContent: |-
+    # 1. Меняем тип развертывания с Deployment на DaemonSet
+    deployment:
+      kind: DaemonSet 
+      # Это создаст по одному поду Traefik на каждой из твоих 3-х VPS. Каждая нода должна сама обрабатывать входящий трафик.
+
+    # 2. Сетевая политика сервиса
+    service:
+      spec:
+        # Сохраняем оригинальный IP-адрес клиента.       
+        externalTrafficPolicy: Local
