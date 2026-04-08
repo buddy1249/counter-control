@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fastapi-app
+  namespace: default
 spec:
-  replicas: 1
+  replicas: 3 
   selector:
     matchLabels:
       app: fastapi
@@ -14,19 +15,40 @@ spec:
     spec:
       containers:
       - name: fastapi-container
-        image: __IMAGE_NAME__  # динамическая подстановка нового образа из GitLab
+        image: __IMAGE_NAME__ # Заменяется в GitLab CI на реальный хеш образа
+        imagePullPolicy: Always # Всегда скачивать свежий образ, если тег совпал
         ports:
         - containerPort: 8000
+        
+        # Безопасность (Hardening)
+        securityContext:
+          allowPrivilegeEscalation: false # Запрет повышения прав до root
+          runAsNonRoot: true              # Контейнер не запустится от root
+          runAsUser: 1000                 # Запуск от имени appuser (UID 1000)
+          capabilities:
+            drop:
+              - ALL                       # Отключение всех опасных системных вызовов
+
+        # Защита ресурсов от перегрузки и ботов
+        resources:
+          requests:
+            cpu: "100m"                   # Гарантированный минимум CPU (0.1 ядра)
+            memory: "128Mi"               # Гарантированный минимум RAM
+          limits:
+            cpu: "500m"                   # Максимальное потребление CPU
+            memory: "512Mi"               # При превышении этого порога под перезапустится (OOM)
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: fastapi-service
-spec:
-  type: NodePort
+  namespace: default
+spec:  
+  type: ClusterIP 
   selector:
     app: fastapi
   ports:
-    - port: 80
-      targetPort: 8000
-      nodePort: 30080  
+    - protocol: TCP
+      port: 80         # Внешний порт сервиса для ingress
+      targetPort: 8000 # Порт внутри FastAPI контейнера
