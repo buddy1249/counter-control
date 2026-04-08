@@ -1,54 +1,28 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: fastapi-app
-  namespace: default
-spec:
-  replicas: 3 
-  selector:
-    matchLabels:
-      app: fastapi
-  template:
-    metadata:
-      labels:
-        app: fastapi
-    spec:
-      containers:
-      - name: fastapi-container
-        image: __IMAGE_NAME__ # Заменяется в GitLab CI на реальный хеш образа
-        imagePullPolicy: Always # Всегда скачивать свежий образ, если тег совпал
-        ports:
-        - containerPort: 8000
-        
-        # Безопасность (Hardening)
-        securityContext:
-          allowPrivilegeEscalation: false # Запрет повышения прав до root
-          runAsNonRoot: true              # Контейнер не запустится от root
-          runAsUser: 1000                 # Запуск от имени appuser (UID 1000)
-          capabilities:
-            drop:
-              - ALL                       # Отключение всех опасных системных вызовов
+stages:
+  - build
+  - deploy
 
-        # Защита ресурсов от перегрузки и ботов
-        resources:
-          requests:
-            cpu: "100m"                   # Гарантированный минимум CPU (0.1 ядра)
-            memory: "128Mi"               # Гарантированный минимум RAM
-          limits:
-            cpu: "500m"                   # Максимальное потребление CPU
-            memory: "512Mi"               # При превышении этого порога под перезапустится (OOM)
+build_job:
+  stage: build
+  image: docker:latest
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: fastapi-service
-  namespace: default
-spec:  
-  type: ClusterIP 
-  selector:
-    app: fastapi
-  ports:
-    - protocol: TCP
-      port: 80         # Внешний порт сервиса для ingress
-      targetPort: 8000 # Порт внутри FastAPI контейнера
+deploy_job:
+  stage: deploy
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: [""]
+       
+  script:
+    - export KUBECONFIG=$KUBECONFIG_CONTENT
+    - sed -i "s|127.0.0.1|ip-service|g" $KUBECONFIG
+    - sed -i "s|__IMAGE_NAME__|$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA|g" k8s-deploy.yaml
+    
+    # Применяем и деплоймент, и ингресс
+    - kubectl apply -f k8s-deploy.yaml --insecure-skip-tls-verify
+    - kubectl apply -f ingress.yaml --insecure-skip-tls-verify
+    
+    - kubectl rollout status deployment/fastapi-app
