@@ -55,6 +55,13 @@ graph LR
     style App fill:#05998b,stroke:#fff,color:#fff
 ```
 
+<p align="center">
+  <img src="img/k3s-cluster-monitoring.png" alt="Cluster Monitoring" width="800">
+  <br>
+  <em>Рис. 1 — Реакция системы на нагрузку: рост RAM на мощной ноде и активация Swap на слабой ноде.</em>
+</p>
+
+
 ### Основные команды управления:
 ```bash
 # Проверка статуса деплоя
