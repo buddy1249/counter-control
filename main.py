@@ -8,8 +8,15 @@ from typing import Annotated, Literal
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
-app = FastAPI()
+app_env = os.getenv("APP_ENV", "development")
+
+app = FastAPI(
+    docs_url=None if app_env == "production" else "/docs",
+    redoc_url=None if app_env == "production" else "/redoc",
+    openapi_url=None if app_env == "production" else "/openapi.json"
+)
 
 app.add_middleware(
     CORSMiddleware,
