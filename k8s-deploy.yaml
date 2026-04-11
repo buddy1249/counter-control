@@ -19,6 +19,9 @@ spec:
         imagePullPolicy: Always # Всегда скачивать свежий образ, если тег совпал
         ports:
         - containerPort: 8000
+        env: # список переменных.
+        - name: APP_ENV # Это ключ для функции os.getenv("APP_ENV")
+          value: "production" # Это значение которое скроет Swagger в проде.
         
         # Безопасность (Hardening)
         securityContext:
